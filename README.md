@@ -10,8 +10,8 @@ This contract is currently in development and has not yet undergone rigorous sec
 
 | Contract | Address                                    |
 |----------|--------------------------------------------|
-| Bodhi    | 0xD4B4386a3632D406E3b8c4EC38486f83E8f8D889 |
-| Trade    | 0x1a079cE9D7d6DdeE6774293380Fdd0b2953F7Dd8 |
+| Bodhi    | [0xD4B4386a3632D406E3b8c4EC38486f83E8f8D889](https://sepolia-optimism.etherscan.io/address/0xD4B4386a3632D406E3b8c4EC38486f83E8f8D889) |
+| Trade    | [0x1a079cE9D7d6DdeE6774293380Fdd0b2953F7Dd8](https://sepolia-optimism.etherscan.io/address/0x1a079cE9D7d6DdeE6774293380Fdd0b2953F7Dd8) |
 
 ## Usage
 

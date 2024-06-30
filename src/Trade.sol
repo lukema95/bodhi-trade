@@ -97,9 +97,8 @@ contract Trade is ERC1155TokenReceiver {
      * @param amount The amount of tokens to buy.
      */
     function buy(uint256 appId, uint256 assetId, uint256 amount) public payable appIsExist(appId) {
-        uint256 value = msg.value;
         uint256 price_with_fee = getBuyPriceAfterFee(appId, assetId, amount);
-        require(value >= price_with_fee, "Trade: insufficient fund");
+        require(msg.value >= price_with_fee, "Trade: insufficient fund");
 
         uint256 price = bodhi.getBuyPriceAfterFee(assetId, amount);
         bodhi.buy{value: price}(assetId, amount);
@@ -117,7 +116,7 @@ contract Trade is ERC1155TokenReceiver {
      * @param assetId The ID of the asset.
      * @param amount The amount of tokens to sell.
      */
-    function sell(uint appId, uint256 assetId, uint256 amount) public appIsExist(appId) {
+    function sell(uint256 appId, uint256 assetId, uint256 amount) public appIsExist(appId) {
         require(bodhi.balanceOf(msg.sender, assetId) >= amount, "Trade: insufficient balance");
         bodhi.safeTransferFrom(msg.sender, address(this), assetId, amount, "");
 

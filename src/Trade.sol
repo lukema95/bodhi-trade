@@ -4,6 +4,10 @@ pragma solidity ^0.8.18;
 import "./ERC1155.sol";
 import "./interface/IBodhi.sol";
 
+/**
+ * @title Trade
+ * @dev A contract for trading ERC1155 assets on the Bodhi platform.
+ */
 contract Trade is ERC1155TokenReceiver {
     event Buy(
         uint256 indexed appId,
@@ -39,24 +43,44 @@ contract Trade is ERC1155TokenReceiver {
     // application id => application revenue
     mapping(uint256 => uint256) public appRevenue;
 
+    /**
+     * @dev Constructor function
+     * @param _bodhi The address of the Bodhi contract.
+     */
     constructor(address _bodhi) {
         bodhi = IBodhi(_bodhi);
     }
 
+    /**
+     * @dev Modifier to check if an application exists.
+     * @param appId The ID of the application.
+     */
     modifier appIsExist(uint256 appId) {
         require(applications[appId] != address(0), "Trade: app not exist");
         _;
     }
 
+    /**
+     * @dev Modifier to check if the caller is the admin of the application.
+     * @param appId The ID of the application.
+     */
     modifier onlyAppAdmin(uint256 appId) {
         require(applications[appId] == msg.sender, "Trade: only app admin");
         _;
     } 
 
+    /**
+     * @dev Creates a new application with the default fee.
+     */
     function createApp() public {
         create(DEFAULT_APP_FEE, msg.sender);
     }
 
+    /**
+     * @dev Creates a new application with a custom fee.
+     * @param fee The fee for the application.
+     * @param app The address of the application.
+     */
     function create(uint256 fee, address app) public {
         require(app != address(0), "Trade: invalid app address");
         require(fee < 1 ether, "Trade: fee must be less than 100%");
@@ -66,6 +90,12 @@ contract Trade is ERC1155TokenReceiver {
         idIndex = appId + 1;
     }
 
+    /**
+     * @dev Buys ERC1155 tokens from the Bodhi contract.
+     * @param appId The ID of the application.
+     * @param assetId The ID of the asset.
+     * @param amount The amount of tokens to buy.
+     */
     function buy(uint256 appId, uint256 assetId, uint256 amount) public payable appIsExist(appId) {
         uint256 value = msg.value;
         uint256 price_with_fee = getBuyPriceAfterFee(appId, assetId, amount);
@@ -80,6 +110,13 @@ contract Trade is ERC1155TokenReceiver {
         appRevenue[appId] += price_with_fee - price;
     }
 
+    /**
+     * @dev Sells ERC1155 tokens to the Bodhi contract.
+     * @notice Before selling, the caller must approve(bodhi.setApprovalForAll) the contract to transfer the tokens.
+     * @param appId The ID of the application.
+     * @param assetId The ID of the asset.
+     * @param amount The amount of tokens to sell.
+     */
     function sell(uint appId, uint256 assetId, uint256 amount) public appIsExist(appId) {
         require(bodhi.balanceOf(msg.sender, assetId) >= amount, "Trade: insufficient balance");
         bodhi.safeTransferFrom(msg.sender, address(this), assetId, amount, "");
@@ -100,6 +137,13 @@ contract Trade is ERC1155TokenReceiver {
         appRevenue[appId] += app_fee;
     }
 
+    /**
+     * @dev Calculates the buy price of ERC1155 tokens after applying the application fee.
+     * @param appId The ID of the application.
+     * @param assetId The ID of the asset.
+     * @param amount The amount of tokens to buy.
+     * @return The buy price after applying the fee.
+     */
     function getBuyPriceAfterFee(uint256 appId, uint256 assetId, uint256 amount) 
         public 
         view 
@@ -112,6 +156,13 @@ contract Trade is ERC1155TokenReceiver {
         return price + total_fee;
     }
 
+    /**
+     * @dev Calculates the sell price of ERC1155 tokens after applying the application fee.
+     * @param appId The ID of the application.
+     * @param assetId The ID of the asset.
+     * @param amount The amount of tokens to sell.
+     * @return The sell price after applying the fee.
+     */
     function getSellPriceAfterFee(uint256 appId, uint256 assetId, uint256 amount) 
         public 
         view 
@@ -124,6 +175,12 @@ contract Trade is ERC1155TokenReceiver {
         return price - total_fee;
     }
 
+    /**
+     * @dev Calculates the application fee for a given price.
+     * @param appId The ID of the application.
+     * @param price The price of the asset.
+     * @return The application fee.
+     */
     function getAppFee(uint256 appId, uint256 price) 
         public 
         view 
@@ -136,6 +193,10 @@ contract Trade is ERC1155TokenReceiver {
     receive() external payable {}
     fallback() external payable {}
 
+    /**
+     * @dev Withdraws the accumulated revenue for an application.
+     * @param appId The ID of the application.
+     */
     function withdrawFee(uint256 appId) public appIsExist(appId) onlyAppAdmin(appId){
         uint256 revenue = appRevenue[appId];
         require(revenue > 0, "Trade: no revenue to withdraw");
@@ -143,5 +204,4 @@ contract Trade is ERC1155TokenReceiver {
         (bool success, ) = payable(msg.sender).call{value: revenue}("");
         require(success, "Trade: transfer failed");
     }
-
 }

@@ -6,6 +6,13 @@ The Trade contract is designed for trading ERC1155 assets on the Bodhi platform.
 ## Security
 This contract is currently in development and has not yet undergone rigorous security audits. It is crucial to ensure that there are no vulnerabilities that could be exploited. We strongly advise against using this contract for trading real assets until it has been thoroughly tested and audited by security professionals.
 
+## Optimism Sepolia Test Contract Addresses
+
+| Contract | Address                                    |
+|----------|--------------------------------------------|
+| Bodhi    | 0xD4B4386a3632D406E3b8c4EC38486f83E8f8D889 |
+| Trade    | 0x1a079cE9D7d6DdeE6774293380Fdd0b2953F7Dd8 |
+
 ## Usage
 
 ### Build

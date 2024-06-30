@@ -84,17 +84,18 @@ contract Trade is ERC1155TokenReceiver {
         require(bodhi.balanceOf(msg.sender, assetId) >= amount, "Trade: insufficient balance");
         bodhi.safeTransferFrom(msg.sender, address(this), assetId, amount, "");
 
-        uint256 price = bodhi.getSellPriceAfterFee(assetId, amount);
+        uint256 price = bodhi.getSellPrice(assetId, amount);
+        uint256 price_after_fee = bodhi.getSellPriceAfterFee(assetId, amount);
         uint256 current_balance = address(this).balance;
         bodhi.sell(assetId, amount);
-        require(address(this).balance >= current_balance + price, "Trade: balance mismatch");
+        require(address(this).balance >= current_balance + price_after_fee, "Trade: balance mismatch");
 
         uint256 app_fee = getAppFee(appId, price);
-        uint256 return_fund = price - app_fee;
-        require(app_fee + return_fund == price, "Trade: price overflow");
+        uint256 return_fund = price_after_fee - app_fee;
+        require(app_fee + return_fund == price_after_fee, "Trade: price overflow");
         (bool success, ) = payable(msg.sender).call{value: return_fund}("");
         require(success, "Trade: transfer failed");
-        emit Sell(appId, assetId, msg.sender, amount, price, app_fee);
+        emit Sell(appId, assetId, msg.sender, amount, price_after_fee, app_fee);
 
         appRevenue[appId] += app_fee;
     }
@@ -118,8 +119,8 @@ contract Trade is ERC1155TokenReceiver {
         returns (uint256) 
     {
         uint256 fee = appFee[appId];
-        uint256 price = bodhi.getSellPriceAfterFee(assetId, amount);
-        uint256 total_fee = price * fee / 1 ether;
+        uint256 price = bodhi.getSellPrice(assetId, amount);
+        uint256 total_fee = price * (fee + CREATOR_FEE_PERCENT) / 1 ether;
         return price - total_fee;
     }
 
@@ -136,7 +137,11 @@ contract Trade is ERC1155TokenReceiver {
     fallback() external payable {}
 
     function withdrawFee(uint256 appId) public appIsExist(appId) onlyAppAdmin(appId){
-        payable(msg.sender).transfer(appRevenue[appId]);
+        uint256 revenue = appRevenue[appId];
+        require(revenue > 0, "Trade: no revenue to withdraw");
+        appRevenue[appId] = 0;
+        (bool success, ) = payable(msg.sender).call{value: revenue}("");
+        require(success, "Trade: transfer failed");
     }
 
 }

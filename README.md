@@ -1,17 +1,10 @@
-## Foundry
+# Trade Contract
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+## Overview
+The Trade contract is designed for trading ERC1155 assets on the Bodhi platform. It enables application developers to build applications on top of Bodhi and set application-specific fees (app fees). This smart contract is developed using Solidity and is compatible with Solidity version 0.8.18.
 
-Foundry consists of:
-
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
-
-## Documentation
-
-https://book.getfoundry.sh/
+## Security
+This contract is currently in development and has not yet undergone rigorous security audits. It is crucial to ensure that there are no vulnerabilities that could be exploited. We strongly advise against using this contract for trading real assets until it has been thoroughly tested and audited by security professionals.
 
 ## Usage
 

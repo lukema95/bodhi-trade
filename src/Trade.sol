@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {ERC1155TokenReceiver} from "solmate/src/tokens/ERC1155.sol";
+import "./ERC1155.sol";
 import "./interface/IBodhi.sol";
 
 contract Trade is ERC1155TokenReceiver {
@@ -31,7 +31,7 @@ contract Trade is ERC1155TokenReceiver {
     uint256 public constant CREATOR_FEE_PERCENT = 0.05 ether; // 5%
 
     // application id => application address
-    mapping(uint256 => address) applications;
+    mapping(uint256 => address) public applications;
 
     // application id => application fee
     mapping(uint256 => uint256) public appFee;
